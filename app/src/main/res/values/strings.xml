@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Wild Hunt</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="navigation_drawer_open">Ouvrir le menu</string>
+    <string name="navigation_drawer_close">Fermer le menu</string>
+    <string name="nav_header_desc">Image de profil</string>
+    <string name="disconnect">Se déconnecter</string>
 </resources>
