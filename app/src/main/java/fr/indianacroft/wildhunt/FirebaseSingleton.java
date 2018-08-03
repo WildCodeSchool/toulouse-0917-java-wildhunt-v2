@@ -1,6 +1,8 @@
 package fr.indianacroft.wildhunt;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -47,5 +49,15 @@ class FirebaseSingleton {
 
     public void setGoogleSignInAccount(GoogleSignInAccount googleSignInAccount) {
         mGoogleSignInAccount = googleSignInAccount;
+    }
+
+    public void disconnect(Activity activity) {
+        GoogleSignInClient googleSignInClient = getGoogleSignInClient(activity);
+        googleSignInClient.signOut()
+                .addOnCompleteListener(activity,
+                        task -> {
+                            setGoogleSignInAccount(null);
+                            activity.startActivity(new Intent(activity, LoginActivity.class));
+                        });
     }
 }
