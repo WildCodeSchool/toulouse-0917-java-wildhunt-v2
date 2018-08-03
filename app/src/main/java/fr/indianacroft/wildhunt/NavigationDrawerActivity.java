@@ -1,5 +1,6 @@
 package fr.indianacroft.wildhunt;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -11,14 +12,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 public class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final FirebaseSingleton mFirebaseSingleton = FirebaseSingleton.getInstance();
+    private String mAccountId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +46,30 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        GoogleSignInAccount account = mFirebaseSingleton.getGoogleSignInAccount(this);
+        if (account != null) {
+            mAccountId = account.getId();
+            View header = navigationView.getHeaderView(0);
+            TextView name = header.findViewById(R.id.name);
+            String personName = account.getDisplayName() != null ?
+                    account.getDisplayName() : account.getEmail();
+            name.setText(personName);
+            ImageView avatar = header.findViewById(R.id.avatar);
+            GlideApp.with(this)
+                    .load(account.getPhotoUrl())
+                    .fallback(R.drawable.ic_face_black_24dp)
+                    .apply(RequestOptions.circleCropTransform()).into(avatar);
+        } else {
+            finish();
+        }
     }
 
     @Override
@@ -58,8 +81,10 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
     private void checkUserAccountExists() {
         GoogleSignInAccount account = mFirebaseSingleton.getGoogleSignInAccount(this);
-        if (account == null || account.isExpired()) {
+        if (account == null) {
             mFirebaseSingleton.setGoogleSignInAccount(null);
+            startActivity(new Intent(this, LoginActivity.class));
+        } else if (!mAccountId.equals(account.getId())) {
             finish();
         }
     }
