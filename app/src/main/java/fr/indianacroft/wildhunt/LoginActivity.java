@@ -37,7 +37,6 @@ public class LoginActivity extends AppCompatActivity {
             signInButton.setVisibility(View.GONE);
             // TODO : check if user account exists and creates it otherwise
             startActivity(new Intent(this, MainActivity.class));
-            finish();
         }
     }
 
