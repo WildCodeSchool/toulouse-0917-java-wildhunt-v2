@@ -11,5 +11,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // TODO : check if user account exists and if user is logged in, return to login otherwise
+
     }
 }
