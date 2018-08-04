@@ -10,19 +10,21 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <include
+            android:id="@+id/include"
             layout="@layout/app_bar_navigation_drawer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <ScrollView
+        <LinearLayout
             android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:orientation="vertical" />
     </LinearLayout>
 
     <android.support.design.widget.NavigationView
@@ -32,6 +34,7 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_navigation_drawer"
-        app:menu="@menu/activity_navigation_drawer_drawer" />
+        app:menu="@menu/activity_navigation_drawer_drawer"
+        tools:layout_width="0dp" />
 
 </android.support.v4.widget.DrawerLayout>
