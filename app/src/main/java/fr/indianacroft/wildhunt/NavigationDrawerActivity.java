@@ -13,7 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ScrollView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -36,8 +36,10 @@ public class NavigationDrawerActivity extends AppCompatActivity
     public void setContentLayout(int layout) {
         LayoutInflater inflater = LayoutInflater.from(this);
         View inflatedLayout = inflater.inflate(layout, null, false);
-        ScrollView container = findViewById(R.id.content);
-        container.addView(inflatedLayout);
+        LinearLayout container = findViewById(R.id.content);
+        container.addView(inflatedLayout, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
     }
 
     private void initNavigation() {
