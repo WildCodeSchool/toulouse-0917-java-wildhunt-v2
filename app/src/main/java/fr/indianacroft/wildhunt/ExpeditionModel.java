@@ -26,7 +26,6 @@ public class ExpeditionModel {
     /**
      *
      * @param key expedition id
-     * @param user user model
      * @param name expedition name
      * @param description expedition description
      */
@@ -41,6 +40,13 @@ public class ExpeditionModel {
         Map<String, UserModel> userMap = new HashMap<>();
         userMap.put(user.getKey(), user);
         this.user = userMap;
+    }
+
+    public String getUserKey() {
+        for (String key : user.keySet()) {
+            return key;
+        }
+        return null;
     }
 
     public String getKey() {

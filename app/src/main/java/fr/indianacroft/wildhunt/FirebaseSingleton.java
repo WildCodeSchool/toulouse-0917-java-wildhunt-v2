@@ -16,13 +16,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 class FirebaseSingleton {
     private static final FirebaseSingleton ourInstance = new FirebaseSingleton();
     private final static String TEMP_REF = "temp/";
+    private FirebaseDatabase mDatabase;
     private GoogleSignInClient mGoogleSignInClient = null;
     private GoogleSignInAccount mGoogleSignInAccount = null;
-    private FirebaseDatabase mDatabase = null;
     private UserModel mUser = null;
+    private List<ExpeditionModel> mExpeditions = null;
 
     private FirebaseSingleton() {
         mDatabase = FirebaseDatabase.getInstance();
@@ -106,7 +111,10 @@ class FirebaseSingleton {
         googleSignInClient.signOut()
                 .addOnCompleteListener(activity,
                         task -> {
-                            setGoogleSignInAccount(null);
+                            mGoogleSignInClient = null;
+                            mGoogleSignInAccount = null;
+                            mUser = null;
+                            mExpeditions = null;
                             activity.startActivity(new Intent(activity, LoginActivity.class));
                         });
     }
@@ -144,5 +152,39 @@ class FirebaseSingleton {
                     // TODO log error
                     success.accept(false);
                 });
+    }
+
+    public void getExpeditions(Consumer<List<ExpeditionModel>> success) {
+
+        if (mUser == null) {
+            success.accept(null);
+            return;
+        }
+        if (mExpeditions == null) {
+            mExpeditions = new ArrayList<>();
+            DatabaseReference expeditionsRef = mDatabase.getReference(TEMP_REF + "expedition");
+            expeditionsRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    mExpeditions.clear();
+                    for (DataSnapshot expeditionSnapshot : dataSnapshot.getChildren()) {
+                        ExpeditionModel expedition = expeditionSnapshot.getValue(ExpeditionModel.class);
+                        // do not show users own expeditions
+                        if (expedition != null && !mUser.getKey().equals(expedition.getUserKey())) {
+                            mExpeditions.add(expedition);
+                        }
+                    }
+                    Collections.reverse(mExpeditions);
+                    success.accept(mExpeditions);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        } else {
+            success.accept(mExpeditions);
+        }
     }
 }

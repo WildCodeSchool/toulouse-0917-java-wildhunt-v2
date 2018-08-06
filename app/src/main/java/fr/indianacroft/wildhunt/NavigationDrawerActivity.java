@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-public class NavigationDrawerActivity extends AppCompatActivity
+public abstract class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final FirebaseSingleton mFirebaseSingleton = FirebaseSingleton.getInstance();
@@ -33,20 +33,30 @@ public class NavigationDrawerActivity extends AppCompatActivity
         initNavigation();
     }
 
-    public void setContentLayout(int layout, int title) {
+    /**
+     * @param layout layout id to inject in the navigation drawer container
+     */
+    public void setContentLayout(int layout) {
         LayoutInflater inflater = LayoutInflater.from(this);
         View inflatedLayout = inflater.inflate(layout, null, false);
-
-        if (title != 0) {
-            setTitle(title);
-        } else {
-            setTitle(R.string.app_name);
-        }
 
         LinearLayout container = findViewById(R.id.content);
         container.addView(inflatedLayout, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT));
+    }
+
+    /**
+     * @param layout layout id to inject in the navigation drawer container
+     * @param title  string id of the activity title
+     */
+    public void setContentLayout(int layout, int title) {
+        setContentLayout(layout);
+        if (title != 0) {
+            setTitle(title);
+        } else {
+            setTitle(R.string.app_name);
+        }
     }
 
     private void initNavigation() {
