@@ -30,17 +30,26 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void updateUI(GoogleSignInAccount account) {
-        SignInButton signInButton = findViewById(R.id.sign_in_button);
         if (account == null) {
+            SignInButton signInButton = findViewById(R.id.sign_in_button);
             signInButton.setVisibility(View.VISIBLE);
         } else {
-            signInButton.setVisibility(View.GONE);
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
+            mFirebaseSingleton.getUser(account.getId(),
+                    user -> goToHome(),
+                    error -> {
+                        // TODO : show an error to the user
+                    });
         }
     }
 
+    private void goToHome() {
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
+    }
+
     private void signIn() {
+        SignInButton signInButton = findViewById(R.id.sign_in_button);
+        signInButton.setVisibility(View.GONE);
         Intent signInIntent = mFirebaseSingleton.getGoogleSignInClient(this)
                 .getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
