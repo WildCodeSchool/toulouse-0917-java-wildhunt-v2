@@ -1,5 +1,7 @@
 package fr.indianacroft.wildhunt;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ExpeditionModel {
@@ -13,9 +15,9 @@ public class ExpeditionModel {
     private String key;
     private Map <String, UserModel> user;
     private String name;
-    private double difficulty;
+    private String description;
     private String status;
-    private String date;
+    private long date;
     private Map<String, QuestModel> quests = null;
 
     public ExpeditionModel() {
@@ -26,27 +28,19 @@ public class ExpeditionModel {
      * @param key expedition id
      * @param user user model
      * @param name expedition name
-     * @param difficulty expedition difficulty
-     * @param status expedition status {DOING, DONE, DROPPED}
-     * @param date expedition creation date
+     * @param description expedition description
      */
-    public ExpeditionModel(String key, Map<String, UserModel> user, String name, double difficulty, String status, String date) {
+    public ExpeditionModel(String key, String name, String description) {
         this.key = key;
-        this.user = user;
         this.name = name;
-        this.difficulty = difficulty;
-        this.status = status;
-        this.date = date;
+        this.description = description;
+        this.date = new Date().getTime();
     }
 
-    public ExpeditionModel(String key, Map<String, UserModel> user, String name, double difficulty, String status, String date, Map<String, QuestModel> quests) {
-        this.key = key;
-        this.user = user;
-        this.name = name;
-        this.difficulty = difficulty;
-        this.status = status;
-        this.date = date;
-        this.quests = quests;
+    public void addUser(UserModel user) {
+        Map<String, UserModel> userMap = new HashMap<>();
+        userMap.put(user.getKey(), user);
+        this.user = userMap;
     }
 
     public String getKey() {
@@ -73,12 +67,12 @@ public class ExpeditionModel {
         this.name = name;
     }
 
-    public double getDifficulty() {
-        return difficulty;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDifficulty(double difficulty) {
-        this.difficulty = difficulty;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getStatus() {
@@ -89,11 +83,11 @@ public class ExpeditionModel {
         this.status = status;
     }
 
-    public String getDate() {
+    public long getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(long date) {
         this.date = date;
     }
 

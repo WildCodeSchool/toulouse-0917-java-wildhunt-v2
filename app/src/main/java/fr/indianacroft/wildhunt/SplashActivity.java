@@ -1,12 +1,11 @@
 package fr.indianacroft.wildhunt;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.firebase.database.DatabaseError;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -23,10 +22,14 @@ public class SplashActivity extends AppCompatActivity {
         GoogleSignInAccount account = mFirebaseSingleton.getGoogleSignInAccount(this);
         if (account != null) {
             mFirebaseSingleton.getUser(account.getId(),
-                    user -> goToHome(),
-                    error -> {
-                        // TODO : show an error to the user
-                    });
+                    user -> {
+                        if (user == null) {
+                            // TODO show error to user
+                        } else {
+                            goToHome();
+                        }
+                    }
+            );
         } else {
             goToLogin();
         }

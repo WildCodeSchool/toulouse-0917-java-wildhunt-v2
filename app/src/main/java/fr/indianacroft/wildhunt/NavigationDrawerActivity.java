@@ -33,9 +33,16 @@ public class NavigationDrawerActivity extends AppCompatActivity
         initNavigation();
     }
 
-    public void setContentLayout(int layout) {
+    public void setContentLayout(int layout, int title) {
         LayoutInflater inflater = LayoutInflater.from(this);
         View inflatedLayout = inflater.inflate(layout, null, false);
+
+        if (title != 0) {
+            setTitle(title);
+        } else {
+            setTitle(R.string.app_name);
+        }
+
         LinearLayout container = findViewById(R.id.content);
         container.addView(inflatedLayout, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

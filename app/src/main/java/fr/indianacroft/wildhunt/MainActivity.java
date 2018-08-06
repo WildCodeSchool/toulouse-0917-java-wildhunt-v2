@@ -9,7 +9,7 @@ public class MainActivity extends NavigationDrawerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentLayout(R.layout.activity_main);
+        setContentLayout(R.layout.activity_main, 0);
 
         FloatingActionButton fabCreateExpedition = findViewById(R.id.fab_create_expedition);
         fabCreateExpedition.setOnClickListener(view -> goToCreateExpedition());

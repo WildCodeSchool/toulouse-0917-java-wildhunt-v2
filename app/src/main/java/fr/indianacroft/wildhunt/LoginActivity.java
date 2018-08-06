@@ -35,9 +35,12 @@ public class LoginActivity extends AppCompatActivity {
             signInButton.setVisibility(View.VISIBLE);
         } else {
             mFirebaseSingleton.getUser(account.getId(),
-                    user -> goToHome(),
-                    error -> {
-                        // TODO : show an error to the user
+                    user -> {
+                        if (user == null) {
+                            // TODO show error to user
+                        } else {
+                            goToHome();
+                        }
                     });
         }
     }

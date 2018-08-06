@@ -33,7 +33,7 @@ class FirebaseSingleton {
         return ourInstance;
     }
 
-    public void getUser(String id, Consumer<UserModel> user, Consumer<DatabaseError> error) {
+    public void getUser(String id, Consumer<UserModel> user) {
 
         DatabaseReference userRef = mDatabase.getReference(TEMP_REF + "user").child(id);
         userRef.keepSynced(true);
@@ -42,6 +42,7 @@ class FirebaseSingleton {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     mUser = dataSnapshot.getValue(UserModel.class);
+                    user.accept(mUser);
                 } else if (mGoogleSignInAccount != null
                         && id.equals(mGoogleSignInAccount.getId())) {
                     // create current user into database
@@ -50,14 +51,22 @@ class FirebaseSingleton {
                     mUser = new UserModel(mGoogleSignInAccount.getId(),
                             mGoogleSignInAccount.getDisplayName(),
                             photoUrl);
-                    userRef.setValue(mUser);
+                    userRef.setValue(mUser)
+                            .addOnSuccessListener(aVoid -> user.accept(mUser))
+                            .addOnCanceledListener(() -> user.accept(null))
+                            .addOnFailureListener(e -> {
+                                // TODO log error
+                                user.accept(null);
+                            });
+                } else {
+                    user.accept(null);
                 }
-                user.accept(mUser);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                error.accept(databaseError);
+                // TODO log error
+                user.accept(null);
             }
         });
     }
@@ -102,4 +111,38 @@ class FirebaseSingleton {
                         });
     }
 
+    public void createExpedition(String title, String description, Consumer<Boolean> success) {
+
+        if (mUser == null) {
+            success.accept(false);
+            return;
+        }
+        DatabaseReference userExpeditionRef = mDatabase.getReference(TEMP_REF + "user")
+                .child(mUser.getKey()).child("expedition");
+        userExpeditionRef.keepSynced(true);
+        String key = userExpeditionRef.push().getKey();
+        if (key == null) {
+            success.accept(false);
+            return;
+        }
+        ExpeditionModel expedition = new ExpeditionModel(key, title, description);
+        userExpeditionRef.child(key).setValue(expedition)
+                .addOnSuccessListener(aVoid -> {
+                    expedition.addUser(mUser);
+                    DatabaseReference expeditionRef
+                            = mDatabase.getReference(TEMP_REF + "expedition").child(key);
+                    expeditionRef.setValue(expedition)
+                            .addOnSuccessListener(aVoid1 -> success.accept(true))
+                            .addOnCanceledListener(() -> success.accept(false))
+                            .addOnFailureListener(e -> {
+                                // TODO log error
+                                success.accept(false);
+                            });
+                })
+                .addOnCanceledListener(() -> success.accept(false))
+                .addOnFailureListener(e -> {
+                    // TODO log error
+                    success.accept(false);
+                });
+    }
 }
