@@ -40,6 +40,10 @@ class FirebaseSingleton {
 
     public void getUser(String id, Consumer<UserModel> user) {
 
+        if (mUser != null) {
+            user.accept(mUser);
+            return;
+        }
         DatabaseReference userRef = mDatabase.getReference(TEMP_REF + "user").child(id);
         userRef.keepSynced(true);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -88,7 +92,7 @@ class FirebaseSingleton {
                 .build();
 
         // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(context, gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(context.getApplicationContext(), gso);
         return mGoogleSignInClient;
     }
 
@@ -98,7 +102,7 @@ class FirebaseSingleton {
         }
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
-        mGoogleSignInAccount = GoogleSignIn.getLastSignedInAccount(context);
+        mGoogleSignInAccount = GoogleSignIn.getLastSignedInAccount(context.getApplicationContext());
         return mGoogleSignInAccount;
     }
 
@@ -110,13 +114,17 @@ class FirebaseSingleton {
         GoogleSignInClient googleSignInClient = getGoogleSignInClient(activity);
         googleSignInClient.signOut()
                 .addOnCompleteListener(activity,
-                        task -> {
-                            mGoogleSignInClient = null;
-                            mGoogleSignInAccount = null;
-                            mUser = null;
-                            mExpeditions = null;
-                            activity.startActivity(new Intent(activity, LoginActivity.class));
-                        });
+                        task -> clearHistory(activity));
+    }
+
+    public void clearHistory(Activity activity) {
+        mGoogleSignInClient = null;
+        mGoogleSignInAccount = null;
+        mUser = null;
+        mExpeditions = null;
+        Intent intent = new Intent(activity, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        activity.startActivity(intent);
     }
 
     public void createExpedition(String title, String description, Consumer<Boolean> success) {
@@ -154,10 +162,10 @@ class FirebaseSingleton {
                 });
     }
 
-    public void getExpeditions(Consumer<List<ExpeditionModel>> success) {
+    public void getExpeditions(Consumer<List<ExpeditionModel>> result) {
 
         if (mUser == null) {
-            success.accept(null);
+            result.accept(null);
             return;
         }
         if (mExpeditions == null) {
@@ -175,16 +183,16 @@ class FirebaseSingleton {
                         }
                     }
                     Collections.reverse(mExpeditions);
-                    success.accept(mExpeditions);
+                    result.accept(mExpeditions);
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                    result.accept(null);
                 }
             });
         } else {
-            success.accept(mExpeditions);
+            result.accept(mExpeditions);
         }
     }
 }

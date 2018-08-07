@@ -1,6 +1,5 @@
 package fr.indianacroft.wildhunt;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -101,8 +100,7 @@ public abstract class NavigationDrawerActivity extends AppCompatActivity
     private void checkUserAccountExists() {
         GoogleSignInAccount account = mFirebaseSingleton.getGoogleSignInAccount(this);
         if (account == null) {
-            mFirebaseSingleton.setGoogleSignInAccount(null);
-            startActivity(new Intent(this, LoginActivity.class));
+            mFirebaseSingleton.clearHistory(this);
         } else if (!mAccountId.equals(account.getId())) {
             finish();
         }
