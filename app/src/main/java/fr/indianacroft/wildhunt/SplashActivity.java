@@ -21,7 +21,7 @@ public class SplashActivity extends AppCompatActivity {
     private void route() {
         GoogleSignInAccount account = mFirebaseSingleton.getGoogleSignInAccount(this);
         if (account != null) {
-            mFirebaseSingleton.getUser(account.getId(),
+            mFirebaseSingleton.loadUser(account.getId(),
                     user -> {
                         if (user == null) {
                             // TODO show error to user

@@ -49,6 +49,7 @@
         <activity android:name=".MapsActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".ExpeditionActivity" />
+        <activity android:name=".ExpeditionListActivity" />
     </application>
 
 </manifest>

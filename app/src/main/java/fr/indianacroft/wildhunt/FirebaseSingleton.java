@@ -38,7 +38,11 @@ class FirebaseSingleton {
         return ourInstance;
     }
 
-    public void getUser(String id, Consumer<UserModel> user) {
+    public UserModel getUser() {
+        return mUser;
+    }
+
+    public void loadUser(String id, Consumer<UserModel> user) {
 
         if (mUser != null) {
             user.accept(mUser);
@@ -46,7 +50,7 @@ class FirebaseSingleton {
         }
         DatabaseReference userRef = mDatabase.getReference(TEMP_REF + "user").child(id);
         userRef.keepSynced(true);
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -127,18 +131,18 @@ class FirebaseSingleton {
         activity.startActivity(intent);
     }
 
-    public void createExpedition(String title, String description, Consumer<Boolean> success) {
+    public void createExpedition(String title, String description, Consumer<String> result) {
 
         if (mUser == null) {
-            success.accept(false);
+            result.accept(null);
             return;
         }
         DatabaseReference userExpeditionRef = mDatabase.getReference(TEMP_REF + "user")
-                .child(mUser.getKey()).child("expedition");
+                .child(mUser.getKey()).child("created");
         userExpeditionRef.keepSynced(true);
         String key = userExpeditionRef.push().getKey();
         if (key == null) {
-            success.accept(false);
+            result.accept(null);
             return;
         }
         ExpeditionModel expedition = new ExpeditionModel(key, title, description);
@@ -148,21 +152,34 @@ class FirebaseSingleton {
                     DatabaseReference expeditionRef
                             = mDatabase.getReference(TEMP_REF + "expedition").child(key);
                     expeditionRef.setValue(expedition)
-                            .addOnSuccessListener(aVoid1 -> success.accept(true))
-                            .addOnCanceledListener(() -> success.accept(false))
+                            .addOnSuccessListener(aVoid1 -> result.accept(key))
+                            .addOnCanceledListener(() -> result.accept(null))
                             .addOnFailureListener(e -> {
                                 // TODO log error
-                                success.accept(false);
+                                result.accept(null);
                             });
                 })
-                .addOnCanceledListener(() -> success.accept(false))
+                .addOnCanceledListener(() -> result.accept(null))
                 .addOnFailureListener(e -> {
                     // TODO log error
-                    success.accept(false);
+                    result.accept(null);
                 });
     }
 
-    public void getExpeditions(Consumer<List<ExpeditionModel>> result) {
+    public void updateExpedition(String key, String title, String description) {
+
+        DatabaseReference userExpeditionRef = mDatabase.getReference(TEMP_REF + "user")
+                .child(mUser.getKey()).child("created").child(key);
+        userExpeditionRef.keepSynced(true);
+        userExpeditionRef.child("title").setValue(title);
+        userExpeditionRef.child("description").setValue(description);
+        DatabaseReference expeditionRef
+                = mDatabase.getReference(TEMP_REF + "expedition").child(key);
+        expeditionRef.child("title").setValue(title);
+        expeditionRef.child("description").setValue(description);
+    }
+
+    public void getAllExpeditions(Consumer<List<ExpeditionModel>> result) {
 
         if (mUser == null) {
             result.accept(null);

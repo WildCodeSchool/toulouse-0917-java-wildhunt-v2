@@ -43,8 +43,10 @@ public class ExpeditionModel {
     }
 
     public String getUserKey() {
-        for (String key : user.keySet()) {
-            return key;
+        if (user != null) {
+            for (String key : user.keySet()) {
+                return key;
+            }
         }
         return null;
     }

@@ -1,5 +1,6 @@
 package fr.indianacroft.wildhunt;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -18,11 +19,14 @@ import android.widget.TextView;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
+import java.util.Map;
+
 public abstract class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final FirebaseSingleton mFirebaseSingleton = FirebaseSingleton.getInstance();
     private String mAccountId;
+    private boolean mHasExpeditions = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +107,14 @@ public abstract class NavigationDrawerActivity extends AppCompatActivity
             mFirebaseSingleton.clearHistory(this);
         } else if (!mAccountId.equals(account.getId())) {
             finish();
+        } else {
+            UserModel user = mFirebaseSingleton.getUser();
+            if (user != null) {
+                Map<String, ExpeditionModel> userExpeditions = user.getCreated();
+                if (userExpeditions != null && userExpeditions.values().size() > 0) {
+                    mHasExpeditions = true;
+                }
+            }
         }
     }
 
@@ -119,10 +131,18 @@ public abstract class NavigationDrawerActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
 
-        if (id == R.id.nav_disconnect) {
-            mFirebaseSingleton.disconnect(this);
+        switch (item.getItemId()) {
+            case R.id.my_expeditions:
+                if (mHasExpeditions) {
+                    startActivity(new Intent(this, ExpeditionListActivity.class));
+                } else {
+                    startActivity(new Intent(this, ExpeditionActivity.class));
+                }
+                break;
+            case R.id.nav_disconnect:
+                mFirebaseSingleton.disconnect(this);
+                break;
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

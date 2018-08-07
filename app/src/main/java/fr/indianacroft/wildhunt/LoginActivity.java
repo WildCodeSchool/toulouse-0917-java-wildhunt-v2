@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
             SignInButton signInButton = findViewById(R.id.sign_in_button);
             signInButton.setVisibility(View.VISIBLE);
         } else {
-            mFirebaseSingleton.getUser(account.getId(),
+            mFirebaseSingleton.loadUser(account.getId(),
                     user -> {
                         if (user == null) {
                             // TODO show error to user
